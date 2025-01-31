@@ -13,10 +13,10 @@ public class Piece : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
         // Default position not valid? Then it's game over
         if (!IsValidBoard())
-		{
+        {
             Debug.Log("GAME OVER");
             Destroy(gameObject);
         }
@@ -75,12 +75,7 @@ public class Piece : MonoBehaviour
         }
 
         // Implement move Downwards and Fall (each second)
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            MovePiece(new Vector3(0, -1, 0));
-        }
-        
-        if (Time.time - lastFall >= 1)
+        if (Input.GetKeyDown(KeyCode.DownArrow) || Time.time - lastFall >= 1)
         {
             MovePiece(new Vector3(0, -1, 0));
             lastFall = Time.time;
@@ -91,28 +86,34 @@ public class Piece : MonoBehaviour
     void UpdateBoard()
     {
         // First you have to loop over the Board and make current positions of the piece null.
-        for(int y =0; y < Board.h; ++y){
+        for (int y = 0; y < Board.h; ++y)
+        {
 
-            for(int x = 0; x < Board.w; ++x){
+            for (int x = 0; x < Board.w; ++x)
+            {
 
-                if(Board.grid[x,y] != null && Board.grid[x,y].transform.parent == transform){
+                if (Board.grid[x, y] != null && Board.grid[x, y].transform.parent == transform)
+                {
 
-                    Board.grid[x,y] = null;
+                    Board.grid[x, y].SetActive(false);
 
                 }
 
             }
 
         }
-        
+
         // Then you have to loop over the blocks of the current piece and add them to the Board.
 
-        foreach(Transform child in transform){
+        /*
+        foreach (Transform child in transform)
+        {
 
-            Vector2 v=Board.RoundVector2(child.position);
-            Board.grid[(int) v.x, (int)v.y] = child.gameObject;
+            Vector2 v = Board.RoundVector2(child.position);
+            Board.grid[(int)v.x, (int)v.y] = child.gameObject;
 
         }
+        */
     }
 
     // Returns if the current position of the piece makes the board valid or not
@@ -121,37 +122,54 @@ public class Piece : MonoBehaviour
         foreach (Transform child in transform)
         {
             Vector2 v = Board.RoundVector2(child.position);
-
-            // Not inside Border?
+            
             if (!Board.InsideBorder(v))
+            {
                 return false;
-
-            // Block in grid cell (and not part of same group)?
+            }
+            
             if (Board.grid[(int)v.x, (int)v.y] != null &&
+                Board.grid[(int)v.x, (int)v.y].activeInHierarchy && 
                 Board.grid[(int)v.x, (int)v.y].transform.parent != transform)
+            {
                 return false;
+            }
         }
         return true;
     }
 
-    void MovePiece(Vector3 direction){
 
-        transform.position+=direction;
-        if(IsValidBoard()){
+    void MovePiece(Vector3 direction)
+    {
+        transform.position += direction;
+        Debug.Log("Moviendo pieza a: " + transform.position); // Debug
+
+        if (IsValidBoard())
+        {
             UpdateBoard();
         }
         else
         {
-            transform.position-=direction;
-            if(direction == new Vector3(0,-1,0)){
+            transform.position -= direction;
+            Debug.Log("Colisión detectada. Intentando detener la pieza.");
 
+            if (direction == new Vector3(0, -1, 0)) // Si la pieza tocó suelo u otra pieza
+            {
+                foreach (Transform child in transform)
+                {
+                    Vector2 v = Board.RoundVector2(child.position);
+                    Board.ActivateBlock((int)v.x, (int)v.y);
+                }
+
+                Debug.Log("Activando siguiente pieza...");
+                Object.FindFirstObjectByType<Spawner>().ActivateNextPiece();
+
+                transform.position = new Vector3(-100, -100, 0); // Mueve la pieza fuera de la pantalla
+                gameObject.SetActive(false);
                 Board.DeleteFullRows();
-                Object.FindFirstObjectByType<Spawner>().SpawnNext();
-                enabled=false;
-
+                enabled = false;
             }
         }
-
     }
+
 }
-    

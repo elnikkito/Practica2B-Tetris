@@ -8,6 +8,39 @@ public class Board : MonoBehaviour
     public static int w = 10;
     public static int h = 20;
     public static GameObject[,] grid = new GameObject[w, h];
+    private static Spawner spawner;
+
+    void Start()
+    {
+
+        spawner = Object.FindFirstObjectByType<Spawner>();
+
+    }
+
+    public static void ActivateBlock(int x, int y)
+    {
+        if (grid[x, y] != null) // Verifica si el bloque existe
+        {
+            grid[x, y].SetActive(true); // Activa el bloque en la posición (x, y)
+        }
+    }
+
+
+    public static void InitializeGrid(GameObject blockPrefab)
+    {
+
+        for (int y = 0; y < h; y++)
+        {
+            for (int x = 0; x < w; x++)
+            {
+                GameObject block = Instantiate(blockPrefab, new Vector3(x, y, 0),
+                Quaternion.identity);
+                block.SetActive(false);
+                grid[x, y] = block;
+            }
+        }
+    }
+
 
     // Rounds Vector2 so does not have decimal values
     // Used to force Integer coordinates (without decimals) when moving pieces
@@ -30,8 +63,7 @@ public class Board : MonoBehaviour
         {
             if (grid[x, y] != null)
             {
-                Destroy(grid[x, y]);
-                grid[x, y] = null;
+                grid[x, y].SetActive(false);
             }
         }
     }

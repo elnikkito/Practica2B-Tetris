@@ -479,6 +479,7 @@ MonoBehaviour:
   - {fileID: 9000342832244989102, guid: ddf80c099a26653e194d19696a7cf16c, type: 3}
   - {fileID: 4165486180704840551, guid: 83aed4bcb1806f16cb74424e64237be9, type: 3}
   - {fileID: 3736216839346036388, guid: bb8b55f471ec442e39728dfb52e8be0c, type: 3}
+  blockPrefab: {fileID: 847987792038208197, guid: e3298c548018a984086e1995f178d170, type: 3}
 --- !u!1 &2142380484
 GameObject:
   m_ObjectHideFlags: 0
